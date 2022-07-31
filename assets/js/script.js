@@ -45,6 +45,79 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+$(".card .list-group").sortable({
+  // enable dragging across lists
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  activate: function(event) {
+    console.log("activate", this);
+  },
+  deactivate: function(event) {
+    console.log("deactivate", this);
+  },
+  over: function(event) {
+    console.log("over", this);
+  },
+  out: function(event) {
+    console.log("out", this);
+  },
+  update: function(event) {
+    // array to store the task data
+    var tempArr = [];
+    // loop over current set of children in sortable list
+    $(this).children().each(function() {
+      // console.log($(this));
+      tempArr.push({
+        text: $(this)
+        .find("p")
+        .text()
+        .trim(),
+
+        date: $(this)
+        .find("span")
+        .text()
+        .trim()
+      });
+
+      // // add task data to the temp array as an object 
+      // tempArr.push({
+      //   text: text,
+      //   date: date
+    });
+
+     // trim down list's ID to  match object property
+    var ArrName = $(this)
+      .attr("id")
+      .replace("list-", "");
+
+    // update array on tasks object and save
+    tasks[ArrName] = tempArr;
+    saveTasks();
+
+    console.log(tempArr);
+  }
+});
+
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui)  {
+    console.log("drop");
+    // remove dragged item from the dom
+    ui.draggable.remove();
+  },
+
+  over: function(event, ui) {
+    console.log("over");
+  },
+  
+  out: function(event, ui) {
+    console.log("out");
+  }
+});
+
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
   // clear values
@@ -174,6 +247,8 @@ $(".list-group").on("blur", "input[type='text']", function() {
 // replace input eith span element
   $(this).replaceWith(taskSpan);
 });
+
+
 
 // remove all tasks
 $("#remove-tasks").on("click", function() {
